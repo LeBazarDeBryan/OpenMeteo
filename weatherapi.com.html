@@ -126,7 +126,7 @@
 			const temperature = interval.temp_c;
 			const weatherCode = interval.condition.text;
 			const listItem = document.createElement('li');
-			listItem.innerHTML = `${formatDateTime(dateTime)} - ${time}<br>${temperature}°C<br>Conditions: ${weatherCode}<hr>`;
+			listItem.innerHTML = `${formatDateTime(dateTime)} - ${time}<br></br>${temperature}°C<br>Conditions : ${weatherCode}<hr>`;
 			listItem.style.listStyle = 'none'; // Ajouter un style CSS pour masquer le point de la liste
 			hourlyForecastList.appendChild(listItem);
 		});
@@ -151,7 +151,7 @@
             const maxTemperature = interval.day.maxtemp_c;
             const weatherCode = interval.day.condition.text;
             const listItem = document.createElement('li');
-            listItem.innerHTML = `${formatDateTime(dateTime)}<br><br>Température Min : ${minTemperature}°C<br>Température Max : ${maxTemperature}°C<br>Conditions: ${weatherCode}<hr>`;
+            listItem.innerHTML = `${formatDateTime(dateTime)}<br><br>Température Min : ${minTemperature}°C<br>Température Max : ${maxTemperature}°C<br>Conditions : ${weatherCode}<hr>`;
             listItem.style.listStyle = 'none'; // Ajouter un style CSS pour masquer le point de la liste
             weeklyForecastList.appendChild(listItem);
           });
