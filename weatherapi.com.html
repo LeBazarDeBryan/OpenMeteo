@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenMétéo - WeatherAPI.com</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+	  background-color: #111 ;
+      color: #fff;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .weather-card {
+      margin: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      max-width: 300px;
+    }
+    ul {
+      padding-left: 0;
+    }
+    .api-key-container {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>OpenMétéo</h1>
+  <h3>WeatherAPI.com</h3>
+
+  <br>
+
+  <div>
+    <label for="color-picker">Arrière-plan :</label>
+    <input type="color" id="color-picker" onchange="changeBackgroundColor()">
+  </div>
+  
+  <br></br>
+  <br></br>
+  
+  <p>github.com/LeBazarDeBryan</p>
+
+  <div class="container">
+    <div class="weather-card" id="current-weather-card">
+      <h2>Actuelle</h2>
+      <hr>
+      <p id="current-temperature"></p>
+      <p id="current-conditions"></p>
+      <p id="current-humidity"></p>
+      <p id="current-wind"></p>
+      <p id="current-feels-like"></p>
+    </div>
+    
+    <div class="weather-card" id="hourly-weather-card">
+      <h2>Heure par heure</h2>
+      <hr>
+      <ul id="hourly-forecast"></ul>
+    </div>
+    
+    <div class="weather-card" id="weekly-weather-card">
+      <h2>Hebdomadaire</h2>
+      <hr>
+      <ul id="weekly-forecast"></ul>
+    </div>
+  </div>
+  
+  <div class="api-key-container">
+    <label for="api-key">Clé API :</label>
+    <input type="text" id="api-key" placeholder="Entrez votre clé API">
+    <button onclick="updateApiKey()">Mettre à jour</button>
+  </div>
+
+  <script>
+    let apiKey = ''; // Variable pour stocker la clé API
+
+    // Fonction pour formater la date complète
+    function formatDateTime(dateObj) {
+	  const options = {
+	  weekday: 'long',
+	  day: 'numeric',
+	  month: 'long',
+      year: 'numeric'
+	};
+	  return dateObj.toLocaleDateString('fr-FR', options);
+	}
+
+
+    // Fonction pour obtenir les informations météorologiques actuelles
+    function getCurrentWeather(latitude, longitude) {
+      const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${latitude},${longitude}&lang=fr`;
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const currentData = data.current;
+          document.getElementById('current-temperature').textContent = `Température : ${currentData.temp_c}°C`;
+          document.getElementById('current-conditions').textContent = `Conditions : ${currentData.condition.text}`;
+          document.getElementById('current-humidity').textContent = `Humidité : ${currentData.humidity}%`;
+          document.getElementById('current-wind').textContent = `Vitesse du vent : ${currentData.wind_kph} km/h`;
+          document.getElementById('current-feels-like').textContent = `Ressenti : ${currentData.feelslike_c}°C`;
+        })
+        .catch(error => console.error('Une erreur s\'est produite:', error));
+    }
+
+    // Fonction pour obtenir les prévisions météorologiques horaires
+      function getHourlyForecast(latitude, longitude) {
+		const apiUrl = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${latitude},${longitude}&days=1&lang=fr`;
+
+		fetch(apiUrl)
+		  .then(response => response.json())
+		  .then(data => {
+		  const hourlyData = data.forecast.forecastday[0].hour;
+		  const hourlyForecastList = document.getElementById('hourly-forecast');
+		  hourlyForecastList.innerHTML = ''; // Efface le contenu précédent avant d'afficher les nouvelles données
+		  hourlyData.forEach(interval => {
+			const dateTime = new Date(interval.time);
+			const time = dateTime.getHours().toString().padStart(2, '0') + ':' + dateTime.getMinutes().toString().padStart(2, '0');
+			const temperature = interval.temp_c;
+			const weatherCode = interval.condition.text;
+			const listItem = document.createElement('li');
+			listItem.innerHTML = `${formatDateTime(dateTime)} - ${time}<br>${temperature}°C<br>Conditions: ${weatherCode}<hr>`;
+			listItem.style.listStyle = 'none'; // Ajouter un style CSS pour masquer le point de la liste
+			hourlyForecastList.appendChild(listItem);
+		});
+	  })
+	  .catch(error => console.error('Une erreur s\'est produite:', error));
+	}
+
+
+    // Fonction pour obtenir les prévisions météorologiques hebdomadaires
+    function getWeeklyForecast(latitude, longitude) {
+      const apiUrl = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${latitude},${longitude}&days=7&lang=fr`;
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const dailyData = data.forecast.forecastday;
+          const weeklyForecastList = document.getElementById('weekly-forecast');
+          weeklyForecastList.innerHTML = ''; // Efface le contenu précédent avant d'afficher les nouvelles données
+          dailyData.forEach(interval => {
+            const dateTime = new Date(interval.date);
+            const minTemperature = interval.day.mintemp_c;
+            const maxTemperature = interval.day.maxtemp_c;
+            const weatherCode = interval.day.condition.text;
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `${formatDateTime(dateTime)}<br><br>Température Min : ${minTemperature}°C<br>Température Max : ${maxTemperature}°C<br>Conditions: ${weatherCode}<hr>`;
+            listItem.style.listStyle = 'none'; // Ajouter un style CSS pour masquer le point de la liste
+            weeklyForecastList.appendChild(listItem);
+          });
+        })
+        .catch(error => console.error('Une erreur s\'est produite:', error));
+    }
+
+    // Fonction pour obtenir la position de l'utilisateur et appeler les fonctions de récupération des données météorologiques
+    function getLocationAndWeather() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            getCurrentWeather(latitude, longitude);
+            getHourlyForecast(latitude, longitude);
+            getWeeklyForecast(latitude, longitude);
+          },
+          error => console.error('Erreur lors de la récupérationde la position:', error)
+        );
+      } else {
+        console.error('La géolocalisation n\'est pas prise en charge par ce navigateur.');
+      }
+    }
+
+    // Appeler la fonction pour obtenir la position de l'utilisateur et afficher les informations météorologiques
+    getLocationAndWeather();
+
+    // Fonction pour mettre à jour la clé API
+    function updateApiKey() {
+      const apiKeyInput = document.getElementById('api-key');
+      apiKey = apiKeyInput.value;
+      getLocationAndWeather();
+    }
+
+    // Fonction pour changer la couleur d'arrière-plan
+    function changeBackgroundColor() {
+      const colorPicker = document.getElementById('color-picker');
+      const body = document.body;
+      const textColor = calculateContrastColor(colorPicker.value);
+      body.style.backgroundColor = colorPicker.value;
+      body.style.color = textColor;
+    }
+
+    // Fonction pour calculer la couleur de contraste en fonction de la couleur d'arrière-plan
+    function calculateContrastColor(backgroundColor) {
+      const hexColor = backgroundColor.replace('#', '');
+      const red = parseInt(hexColor.substring(0, 2), 16);
+      const green = parseInt(hexColor.substring(2, 4), 16);
+      const blue = parseInt(hexColor.substring(4, 6), 16);
+      const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
+      return (luminance > 0.5) ? '#000' : '#fff';
+    }
+  </script>
+</body>
+</html>
