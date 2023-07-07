@@ -23,7 +23,7 @@
 <summary><h2>Comment je peux l'utiliser ?</h2></summary>
 <p>1. Aller sur <a href="https://open-meteo.vercel.app/">mon site web</a>.</p>
 <p>2. Choisissez le fournisseur.</p>
-<p>3. Autorisez l'accès a votre position (il y aura bientôt une zone de texte).</p>
+<p>3. Autorisez l'accès à votre position (il y aura bientôt une zone de texte).</p>
 <p>4. Coller votre clé API dans la zone de texte 'Clé API : '.</p>
 <p>5. Cliquez sur 'Mettre à jour'.</p>
 </details>
