@@ -1,6 +1,6 @@
 <div align="center">
   <h1>OpenMétéo</h1>
-  <h3>Météo en HTML</h3></div>
+  <h3>Météo en HTML, CSS et JavaScript</h3></div>
   
 ---
 
