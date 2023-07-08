@@ -14,7 +14,7 @@
 
 <details>
 <summary><h2>Fournisseur supporté</h2></summary>
-<p><li><a href="https://www.weatherapi.com/pricing.aspx">WeatherAPI.com</a></li></p>
+<p><li><a href="https://www.weatherapi.com/my/">WeatherAPI.com</a></li></p>
 </details>
 
 ---
