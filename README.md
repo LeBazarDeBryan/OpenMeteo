@@ -6,7 +6,7 @@
 
 <details>
 <summary><h2>C'est quoi ?</h2></summary>
-  <p>OpenMétéo est un <a href="https://open-meteo.vercel.app/">site web</a> qui utilise des clés API (non fourni) de différents fournisseurs météo pour avoir plusieurs informations de la météo selon votre position (peut varier selon le fournisseur).</p>
+  <p>OpenMétéo est un <a href="https://open-meteo.vercel.app/">site web</a> qui utilise des <a href="https://en.wikipedia.org/wiki/API_key">clés API</a> (non fourni) de différents fournisseurs météo pour avoir plusieurs informations de la météo selon votre position (peut varier selon le fournisseur).</p>
   <p>Ce projet est encore en développement, attendez vous à des bugs, des informations manquantes, etc.</p>
 </details>
 
