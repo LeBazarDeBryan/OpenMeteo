@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OpenMétéo - WeatherAPI.com</title>
+  <title>OpenMétéo - OpenWeather</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-	  background-color: #111 ;
+      background-color: #111;
       color: #fff;
     }
     .container {
@@ -37,7 +37,7 @@
 </head>
 <body>
   <h1>OpenMétéo</h1>
-  <h3><a href="https://www.weatherapi.com/my/">WeatherAPI.com</a></h3>
+  <h3>OpenWeather (<a href="https://home.openweathermap.org/api_keys">openweathermap.org</a>)</h3>
 
   <br>
 
@@ -45,10 +45,10 @@
     <label for="color-picker">Arrière-plan :</label>
     <input type="color" id="color-picker" onchange="changeBackgroundColor()">
   </div>
-  
+
   <br></br>
   <br></br>
-  
+
   <p>github.com/LeBazarDeBryan</p>
 
   <div class="container">
@@ -62,20 +62,20 @@
       <p id="current-feels-like"></p>
 	  <hr>
     </div>
-    
+
     <div class="weather-card" id="hourly-weather-card">
       <h2>Heure par heure</h2>
       <hr>
       <ul id="hourly-forecast"></ul>
     </div>
-    
+
     <div class="weather-card" id="weekly-weather-card">
       <h2>Hebdomadaire</h2>
       <hr>
       <ul id="weekly-forecast"></ul>
     </div>
   </div>
-  
+
   <div class="api-key-container">
     <label for="api-key">Clé API :</label>
     <input type="text" id="api-key" placeholder="Entrez votre clé API">
@@ -87,73 +87,72 @@
 
     // Fonction pour formater la date complète
     function formatDateTime(dateObj) {
-	  const options = {
-	  weekday: 'long',
-	  day: 'numeric',
-	  month: 'long',
-      year: 'numeric'
-	};
-	  return dateObj.toLocaleDateString('fr-FR', options);
-	}
-
+      const options = {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      };
+      return dateObj.toLocaleDateString('fr-FR', options);
+    }
 
     // Fonction pour obtenir les informations météorologiques actuelles
     function getCurrentWeather(latitude, longitude) {
-      const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${latitude},${longitude}&lang=fr`;
+      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&lang=fr`;
 
       fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-          const currentData = data.current;
-          document.getElementById('current-temperature').textContent = `Température : ${currentData.temp_c}°C`;
-          document.getElementById('current-conditions').textContent = `Conditions : ${currentData.condition.text}`;
+          const currentData = data.main;
+          const weather = data.weather[0];
+          document.getElementById('current-temperature').textContent = `Température : ${currentData.temp}°C`;
+          document.getElementById('current-conditions').textContent = `Conditions : ${weather.description}`;
           document.getElementById('current-humidity').textContent = `Humidité : ${currentData.humidity}%`;
-          document.getElementById('current-wind').textContent = `Vitesse du vent : ${currentData.wind_kph} km/h`;
-          document.getElementById('current-feels-like').textContent = `Ressenti : ${currentData.feelslike_c}°C`;
+          document.getElementById('current-wind').textContent = `Vitesse du vent : ${data.wind.speed} km/h`;
+          document.getElementById('current-feels-like').textContent = `Ressenti : ${currentData.feels_like}°C`;
         })
         .catch(error => console.error('Une erreur s\'est produite:', error));
     }
 
     // Fonction pour obtenir les prévisions météorologiques horaires
-      function getHourlyForecast(latitude, longitude) {
-		const apiUrl = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${latitude},${longitude}&days=1&lang=fr`;
-
-		fetch(apiUrl)
-		  .then(response => response.json())
-		  .then(data => {
-		  const hourlyData = data.forecast.forecastday[0].hour;
-		  const hourlyForecastList = document.getElementById('hourly-forecast');
-		  hourlyForecastList.innerHTML = ''; // Efface le contenu précédent avant d'afficher les nouvelles données
-		  hourlyData.forEach(interval => {
-			const dateTime = new Date(interval.time);
-			const time = dateTime.getHours().toString().padStart(2, '0') + ':' + dateTime.getMinutes().toString().padStart(2, '0');
-			const temperature = interval.temp_c;
-			const weatherCode = interval.condition.text;
-			const listItem = document.createElement('li');
-			listItem.innerHTML = `${formatDateTime(dateTime)} - ${time}<br>${temperature}°C<br>Conditions: ${weatherCode}<hr>`;
-			listItem.style.listStyle = 'none'; // Ajouter un style CSS pour masquer le point de la liste
-			hourlyForecastList.appendChild(listItem);
-		});
-	  })
-	  .catch(error => console.error('Une erreur s\'est produite:', error));
-	}
-
-
-    // Fonction pour obtenir les prévisions météorologiques hebdomadaires
-    function getWeeklyForecast(latitude, longitude) {
-      const apiUrl = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${latitude},${longitude}&days=7&lang=fr`;
+    function getHourlyForecast(latitude, longitude) {
+      const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&lang=fr`;
 
       fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-          const dailyData = data.forecast.forecastday;
+          const hourlyData = data.list;
+          const hourlyForecastList = document.getElementById('hourly-forecast');
+          hourlyForecastList.innerHTML = ''; // Efface le contenu précédent avant d'afficher les nouvelles données
+          hourlyData.forEach(interval => {
+            const dateTime = new Date(interval.dt * 1000); // Convertir la date en millisecondes
+            const time = dateTime.getHours().toString().padStart(2, '0') + ':' + dateTime.getMinutes().toString().padStart(2, '0');
+            const temperature = interval.main.temp;
+            const weatherCode = interval.weather[0].description;
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `${formatDateTime(dateTime)} - ${time}<br>${temperature}°C<br>Conditions: ${weatherCode}<hr>`;
+            listItem.style.listStyle = 'none'; // Ajouter un style CSS pour masquer le point de la liste
+            hourlyForecastList.appendChild(listItem);
+          });
+        })
+        .catch(error => console.error('Une erreur s\'est produite:', error));
+    }
+
+    // Fonction pour obtenir les prévisions météorologiques hebdomadaires
+    function getWeeklyForecast(latitude, longitude) {
+      const apiUrl = `https://api.openweathermap.org/data/2.5/forecast/daily?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&cnt=7&lang=fr`;
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const dailyData = data.list;
           const weeklyForecastList = document.getElementById('weekly-forecast');
           weeklyForecastList.innerHTML = ''; // Efface le contenu précédent avant d'afficher les nouvelles données
           dailyData.forEach(interval => {
-            const dateTime = new Date(interval.date);
-            const minTemperature = interval.day.mintemp_c;
-            const maxTemperature = interval.day.maxtemp_c;
-            const weatherCode = interval.day.condition.text;
+            const dateTime = new Date(interval.dt * 1000); // Convertir la date en millisecondes
+            const minTemperature = interval.temp.min;
+            const maxTemperature = interval.temp.max;
+            const weatherCode = interval.weather[0].description;
             const listItem = document.createElement('li');
             listItem.innerHTML = `${formatDateTime(dateTime)}<br><br>Température Min : ${minTemperature}°C<br>Température Max : ${maxTemperature}°C<br>Conditions: ${weatherCode}<hr>`;
             listItem.style.listStyle = 'none'; // Ajouter un style CSS pour masquer le point de la liste
@@ -163,7 +162,7 @@
         .catch(error => console.error('Une erreur s\'est produite:', error));
     }
 
-    // Fonction pour obtenir la position de l'utilisateur et appeler les fonctions de récupération des données météorologiques
+    // Fonction pour obtenir la position de l'utilisateur et appeler les fonctions de récupération des donnéesmétéorologiques
     function getLocationAndWeather() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -174,7 +173,7 @@
             getHourlyForecast(latitude, longitude);
             getWeeklyForecast(latitude, longitude);
           },
-          error => console.error('Erreur lors de la récupérationde la position:', error)
+          error => console.error('Erreur lors de la récupération de la position:', error)
         );
       } else {
         console.error('La géolocalisation n\'est pas prise en charge par ce navigateur.');
@@ -207,7 +206,7 @@
       const green = parseInt(hexColor.substring(2, 4), 16);
       const blue = parseInt(hexColor.substring(4, 6), 16);
       const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
-      return (luminance > 0.5) ? '#000' : '#fff';
+      return luminance > 0.5 ? '#000' : '#fff';
     }
   </script>
 </body>
